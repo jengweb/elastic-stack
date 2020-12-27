@@ -1,0 +1,96 @@
+version: "3.5"
+services:
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-cluster
+      - discovery.seed_hosts=es02
+      - cluster.initial_master_nodes=es01,es02
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./esdata/data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+    restart: always
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-cluster
+      - discovery.seed_hosts=es01
+      - cluster.initial_master_nodes=es01,es02
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./esdata/data02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+    restart: always
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.1
+    container_name: kibana
+    # volumes:
+    #   - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    ports:
+      - 5601:5601
+    links:
+      - es01:elasticsearch
+    depends_on:
+      - es01
+      - es02
+    networks:
+      - elastic
+    restart: always
+  # filebeat:
+  #   image: docker.elastic.co/beats/filebeat:7.10.0
+  #   container_name: filebeat
+  #   user: root
+  #   volumes:
+  #     - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #     - /var/run/docker.sock:/var/run/docker.sock:ro
+  #   networks:
+  #     - elastic
+  #   restart: always
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.10.1
+    container_name: metricbeat
+    user: root
+    volumes:
+      - ./metricbeat/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+    networks:
+      - elastic
+    restart: always
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:7.10.1
+    container_name: apm-server
+    user: root
+    volumes:
+      - ./apm/apm-server.yml:/usr/share/apm-server/apm-server.yml:ro
+    ports:
+      - 8200:8200
+    networks:
+      - elastic
+    restart: always
+
+networks:
+  elastic:
+    driver: bridge
