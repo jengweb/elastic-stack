@@ -27,6 +27,10 @@ apm-server:
   # Maximum number of new connections to accept simultaneously (0 means unlimited).
   #max_connections: 0
 
+  # Custom HTTP headers to add to all HTTP responses, e.g. for security policy compliance.
+  #response_headers:
+  #  X-My-Header: Contents of the header
+
   # If true (default), APM Server captures the IP of the instrumented service
   # or the IP and User Agent of the real user (RUM requests).
   #capture_personal_data: true
@@ -391,7 +395,7 @@ apm-server:
 
       # Defines the gRPC host and port the server is listening on.
       # Defaults to the standard Jaeger gRPC collector port 14250.
-      #host: "localhost:14250"
+      #host: "0.0.0.0:14250"
 
       # Set to the name of a process tag to use for authorizing
       # Jaeger agents.
@@ -410,7 +414,7 @@ apm-server:
 
       # Defines the HTTP host and port the server is listening on.
       # Defaults to the standard Jaeger HTTP collector port 14268.
-      #host: "localhost:14268"
+      #host: "0.0.0.0:14268"
 
 #================================= General =================================
 
@@ -1057,11 +1061,10 @@ output.elasticsearch:
 # Set to true to log messages in json format.
 #logging.json: false
 
-# Set to true to log with minimal Elastic Common Schema (ECS) fields set.
-# It is recommended to set `logging.json=true` when enabling ECS logging.
-# Defaults to false.
-#logging.ecs: false
-
+# Set to true, to log messages with minimal required Elastic Common Schema (ECS)
+# information. Recommended to use in combination with `logging.json=true`
+# Defaults to true.
+#logging.ecs: true
 
 #=============================== HTTP Endpoint ===============================
 
