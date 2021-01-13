@@ -89,6 +89,8 @@ services:
       - 8200:8200
     networks:
       - elastic
+    extra_hosts:
+      - host.docker.internal:host-gateway
     restart: always
 
 networks:
