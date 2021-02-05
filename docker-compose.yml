@@ -55,17 +55,17 @@ services:
     networks:
       - elastic
     restart: always
-  # filebeat:
-  #   image: docker.elastic.co/beats/filebeat:7.10.0
-  #   container_name: filebeat
-  #   user: root
-  #   volumes:
-  #     - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
-  #     - /var/lib/docker/containers:/var/lib/docker/containers:ro
-  #     - /var/run/docker.sock:/var/run/docker.sock:ro
-  #   networks:
-  #     - elastic
-  #   restart: always
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:7.10.0
+    container_name: filebeat
+    user: root
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - elastic
+    restart: always
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:7.10.1
     container_name: metricbeat
