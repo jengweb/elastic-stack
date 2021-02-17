@@ -113,6 +113,34 @@ services:
       - host.docker.internal:host-gateway
     restart: always
 
+  influxdb:
+    image: influxdb
+    container_name: influxdb
+    environment:
+      - INFLUXDB_DB=k6
+    ports:
+      - 38086:8086
+    networks:
+      - elastic
+    restart: always
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+    volumes:
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./grafana/datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+    ports:
+      - 33000:3000
+    networks:
+      - elastic
+    restart: always
+
 networks:
   elastic:
     driver: bridge
