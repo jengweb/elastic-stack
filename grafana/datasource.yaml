@@ -6,3 +6,9 @@ datasources:
     database: k6
     url: http://influxdb-k6:8086
     isDefault: true
+  - name: jmeterinfluxdb
+    type: influxdb
+    access: proxy
+    database: jmeter
+    url: http://influxdb-jmeter:8086
+    isDefault: false
