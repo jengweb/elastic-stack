@@ -1,7 +1,7 @@
 version: "3.5"
 services:
   es01:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     container_name: es01
     environment:
       - node.name=es01
@@ -15,14 +15,15 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./esdata/data01:/usr/share/elasticsearch/data
+      # - ./esdata/data01:/usr/share/elasticsearch/data
+      - data01:/usr/share/elasticsearch/data
     ports:
       - 39200:9200
     networks:
       - elastic
     restart: always
   es02:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     container_name: es02
     environment:
       - node.name=es02
@@ -36,12 +37,13 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./esdata/data02:/usr/share/elasticsearch/data
+      # - ./esdata/data02:/usr/share/elasticsearch/data
+      - data02:/usr/share/elasticsearch/data
     networks:
       - elastic
     restart: always
   es03:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.11.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.1
     container_name: es03
     environment:
       - node.name=es03
@@ -55,12 +57,13 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - ./esdata/data03:/usr/share/elasticsearch/data
+      # - ./esdata/data03:/usr/share/elasticsearch/data
+      - data03:/usr/share/elasticsearch/data
     networks:
       - elastic
     restart: always
   kibana:
-    image: docker.elastic.co/kibana/kibana:7.11.1
+    image: docker.elastic.co/kibana/kibana:7.12.1
     container_name: kibana
     # volumes:
     #   - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
@@ -76,7 +79,7 @@ services:
       - elastic
     restart: always
   filebeat:
-    image: docker.elastic.co/beats/filebeat:7.11.1
+    image: docker.elastic.co/beats/filebeat:7.12.1
     container_name: filebeat
     user: root
     volumes:
@@ -87,7 +90,7 @@ services:
       - elastic
     restart: always
   metricbeat:
-    image: docker.elastic.co/beats/metricbeat:7.11.1
+    image: docker.elastic.co/beats/metricbeat:7.12.1
     container_name: metricbeat
     user: root
     volumes:
@@ -100,7 +103,7 @@ services:
       - elastic
     restart: always
   apm-server:
-    image: docker.elastic.co/apm/apm-server:7.11.1
+    image: docker.elastic.co/apm/apm-server:7.12.1
     container_name: apm-server
     user: root
     volumes:
@@ -109,17 +112,29 @@ services:
       - 38200:8200
     networks:
       - elastic
-    extra_hosts:
-      - host.docker.internal:host-gateway
+    # extra_hosts:
+    #   - host.docker.internal:host-gateway
     restart: always
 
-  influxdb:
-    image: influxdb
-    container_name: influxdb
+  influxdb-k6:
+    image: influxdb:1.8
+    container_name: influxdb-k6
     environment:
       - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_MAX_BODY_SIZE=0
     ports:
       - 38086:8086
+    networks:
+      - elastic
+    restart: always
+  influxdb-jmeter:
+    image: influxdb:1.8
+    container_name: influxdb-jmeter
+    environment:
+      - INFLUXDB_DB=jmeter
+      - INFLUXDB_HTTP_MAX_BODY_SIZE=0
+    ports:
+      - 38087:8086
     networks:
       - elastic
     restart: always
@@ -139,6 +154,14 @@ services:
     networks:
       - elastic
     restart: always
+
+volumes:
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
 
 networks:
   elastic:
